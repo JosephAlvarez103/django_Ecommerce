@@ -392,3 +392,7 @@ def payment_successful(request):
         return redirect('payment_failed') # O redirigir a una página de error
 
     return render(request, 'payment-success.html')
+
+
+def payment_failed(request):
+    return render(request, 'payment_failed.html')

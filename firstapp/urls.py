@@ -36,6 +36,7 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('accounts/profile/', views.index, name='index'),
     path('payment-success/', views.payment_successful, name='payment-success'),
+    path('payment-failed/', views.payment_failed, name='payment_failed'),
     path('crear-vendedor/', views.crear_vendedor, name='crear-vendedor'),
     path('vendedor_dashboard/', views.vendedor_dashboard, name='vendedor_dashboard'),
     path('thank-you/', views.contact_thanks, name='thank_you'),
