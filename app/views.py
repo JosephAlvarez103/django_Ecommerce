@@ -194,10 +194,6 @@ def contact_thanks(request):
     return render(request, 'thank_you.html')
 
 
-def payment_successful(request):
-    return render(request, 'payment-success.html')
-
-
 @user_passes_test(lambda u: u.is_superuser)
 def crear_vendedor(request):
     if request.method == 'POST':
@@ -315,28 +311,12 @@ def process_payment(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
-            first_name = form.cleaned_data['first_name']
-            last_name = form.cleaned_data['last_name']
-            city = form.cleaned_data['city']
-            address = form.cleaned_data['address']
-            email = form.cleaned_data['email']
-            telephone = form.cleaned_data['telephone']
-
-            # Obtén los productos del carrito
-            productos = carrito.listado_productos()
-
-            # Construye el mensaje del correo
-            productos_list = "\n".join([f"{item['name']} \n Cantidad: {item['quantity']}" for item in productos])
-            message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
-
-            send_mail(
-                f'Nuevo pedido  - ID: {order_id}',  # Asunto del correo
-                message,  # Cuerpo del correo
-                settings.EMAIL_HOST_USER,  # Desde
-                [settings.EMAIL_HOST_USER],  # Para (tu propio correo)
-                fail_silently=False,
-            )
-            return redirect('thank_you')  # Redirige a una página de éxito
+            # Guardar datos del formulario en la sesión
+            request.session['form_data'] = form.cleaned_data
+            request.session['order_id'] = order_id
+            request.session['amount'] = amount
+            request.session['integrity_signature'] = integrity_signature
+            return redirect('thank_you_payment')
     else:
         form = CheckoutForm()
 
@@ -351,3 +331,64 @@ def process_payment(request):
     }
 
     return render(request, 'payment.html', context)
+
+@login_required(login_url='signin')
+def contact_thanks_p(request):
+    order_id = request.session.get('order_id')
+    amount = request.session.get('amount')
+    integrity_signature = request.session.get('integrity_signature')
+
+    context = {
+        'order_id': order_id,
+        'currency': 'COP',
+        'amount': amount,
+        'api_key': settings.BOLD_API_KEY,
+        'integrity_signature': integrity_signature,
+        'redirection_url': request.build_absolute_uri('/payment-success')
+    }
+
+    return render(request, 'thank_you_payment.html', context)
+
+@login_required(login_url='signin')
+def payment_successful(request):
+    if request.method == 'GET' and request.GET.get('status') == 'success':
+        # Recuperar datos del formulario desde la sesión
+        form_data = request.session.get('form_data')
+        order_id = request.session.get('order_id')
+
+        if form_data:
+            first_name = form_data['first_name']
+            last_name = form_data['last_name']
+            city = form_data['city']
+            address = form_data['address']
+            email = form_data['email']
+            telephone = form_data['telephone']
+
+            # Enviar correo al cliente
+            customer_message = f"Gracias por tu compra, {first_name} {last_name}.\nTu pedido ha sido recibido y está en proceso."
+            send_mail(
+                'Confirmación de Compra',
+                customer_message,
+                settings.EMAIL_HOST_USER,
+                [email],
+                fail_silently=False,
+            )
+
+            # Enviar correo al vendedor
+            productos = Carrito(request).listado_productos()
+            productos_list = "\n".join([f"{item['name']} \n Cantidad: {item['quantity']}" for item in productos])
+            seller_message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
+
+            send_mail(
+                f'Nuevo pedido  - ID: {order_id}',  # Asunto del correo
+                seller_message,  # Cuerpo del correo
+                settings.EMAIL_HOST_USER,  # Desde
+                [settings.EMAIL_HOST_USER],  # Para (tu propio correo)
+                fail_silently=False,
+            )
+
+            return render(request, 'payment-success.html')
+    else:
+        return redirect('payment_failed') # O redirigir a una página de error
+
+    return render(request, 'payment-success.html')
