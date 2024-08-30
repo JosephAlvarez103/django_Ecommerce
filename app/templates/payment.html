@@ -44,7 +44,6 @@
                     <p><strong>Currency:</strong> COP</p>
                     <p><strong>Amount:</strong> {{ amount }}</p>
                     <p><strong>API Key:</strong> {{ api_key }}</p>
-                    <p><strong>Integrity Signature:</strong> {{ integrity_signature }}</p>
                     <p><strong>Redirection URL:</strong> {{ redirection_url }}</p>
                 </div>
                 <!-- Aquí va el botón de checkout de BOLD -->
@@ -54,7 +53,6 @@
                         data-currency="COP"
                         data-amount="{{ amount }}"
                         data-api-key="{{ api_key }}"
-                        data-integrity-signature="{{ integrity_signature }}"
                         data-redirection-url="{{ redirection_url }}"
                         src="https://checkout.bold.co/library/boldPaymentButton.js"
                 ></script>

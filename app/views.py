@@ -305,11 +305,11 @@ def process_payment(request):
     badge = 'COP'
     # Generar el hash de integridad
     data_to_hash = f'{order_id}{amount}{badge}{secret_key}'
-    integrity_signature = hmac.new(
-        secret_key.encode('utf-8'),
-        data_to_hash.encode('utf-8'),
-        hashlib.sha256
-    ).hexdigest()
+    #integrity_signature = hmac.new(
+    #    secret_key.encode('utf-8'),
+    #    data_to_hash.encode('utf-8'),
+    #    hashlib.sha256
+    #).hexdigest()
 
     # URL de redirección después del pago
     redirection_url = request.build_absolute_uri('/payment-success')
@@ -348,7 +348,7 @@ def process_payment(request):
         'currency': 'COP',
         'amount': amount,
         'api_key': settings.BOLD_API_KEY,
-        'integrity_signature': integrity_signature,
+        #'integrity_signature': integrity_signature,
         'redirection_url': redirection_url
     }
 
