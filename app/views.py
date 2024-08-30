@@ -301,8 +301,9 @@ def process_payment(request):
     # Llave secreta de integración
     secret_key = settings.BOLD_SECRET_KEY
 
+    badge = 'COP'
     # Generar el hash de integridad
-    data_to_hash = f'{order_id}{amount}COP{secret_key}'
+    data_to_hash = f'{order_id}{amount}{badge}{secret_key}'
     integrity_signature = hmac.new(
         secret_key.encode('utf-8'),
         data_to_hash.encode('utf-8'),
@@ -320,13 +321,14 @@ def process_payment(request):
             city = form.cleaned_data['city']
             address = form.cleaned_data['address']
             email = form.cleaned_data['email']
+            telephone = form.cleaned_data['telephone']
 
             # Obtén los productos del carrito
             productos = carrito.listado_productos()
 
             # Construye el mensaje del correo
             productos_list = "\n".join([f"{item['name']} \n Cantidad: {item['quantity']}" for item in productos])
-            message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\n\nProductos:\n{productos_list}"
+            message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
 
             send_mail(
                 f'Nuevo pedido  - ID: {order_id}',  # Asunto del correo

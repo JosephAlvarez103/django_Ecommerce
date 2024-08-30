@@ -143,23 +143,22 @@ body {
 }
 
 .btn-google {
-    background-color: #DB4437; /* Color rojo característico de Google */
+    background-color: #DB4437;
     color: white;
     width: 200px;
     height: 50px;
 }
 
-.btn-facebook {
-    background-color: #3B5998; /* Color azul característico de Facebook */
+.btn-whatsapp {
+    background-color:  #25D366;
     color: white;
-    width: 200px;
+    width: 100px;
     height: 50px;
 }
 
-    /* Estilos adicionales para los iconos */
 .btn-google i,
-.btn-facebook i {
-    color: white; /* Color del icono blanco */
+.btn-whatsapp i {
+    color: white;
     display: block;
     margin-bottom: 10px;
     line-height: 35px;

@@ -30,6 +30,10 @@
                         <label class="form-label">Correo Electrónico</label>
                         {{ form.email }}
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Teléfono</label>
+                        {{ form.telephone }}
+                    </div>
                     <button type="submit" class="btn btn-primary custom-btn">Realizar Compra</button>
                 </form>
             </div>
@@ -68,7 +72,7 @@
         border-radius: 4px;
         font-size: 16px;
         width: 100%;
-        margin-bottom: 15px; /* Añadir margen inferior para separar los campos */
+        margin-bottom: 15px;
     }
 </style>
 {% endblock %}
