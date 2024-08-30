@@ -18,7 +18,7 @@ from django.contrib.auth.decorators import user_passes_test
 from .forms import ContactForm
 from django.core.mail import send_mail
 import hashlib
-import hmac
+from django.urls import reverse
 import random
 from django.utils.timezone import now
 from firstapp import settings
@@ -351,7 +351,9 @@ def contact_thanks_p(request):
 
 @login_required(login_url='signin')
 def payment_successful(request):
-    if request.method == 'GET' and request.GET.get('status') == 'success':
+    tx_status = request.GET.get('bold-tx-status')
+
+    if tx_status == 'approved':
         # Recuperar datos del formulario desde la sesión
         form_data = request.session.get('form_data')
         order_id = request.session.get('order_id')
@@ -389,9 +391,7 @@ def payment_successful(request):
 
             return render(request, 'payment-success.html')
     else:
-        return redirect('payment_failed') # O redirigir a una página de error
-
-    return render(request, 'payment-success.html')
+        return redirect(reverse('payment_failed'))
 
 
 def payment_failed(request):
