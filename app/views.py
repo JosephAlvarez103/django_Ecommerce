@@ -348,7 +348,7 @@ def process_payment(request):
         'currency': 'COP',
         'amount': amount,
         'api_key': settings.BOLD_API_KEY,
-        #'integrity_signature': integrity_signature,
+        'integrity_signature': data_to_hash,
         'redirection_url': redirection_url
     }
 
