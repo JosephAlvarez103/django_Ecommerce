@@ -19,7 +19,8 @@ from .forms import ContactForm
 from django.core.mail import send_mail
 import hashlib
 import hmac
-import uuid
+import random
+from django.utils.timezone import now
 from firstapp import settings
 
 def is_vendedor(request):
@@ -296,7 +297,7 @@ def process_payment(request):
     amount = int(acumulado)
 
     # Generar un identificador único para el pedido usando UUID
-    order_id = str(uuid.uuid4())
+    order_id = f"ORD{now().strftime('%Y%m%d')}{random.randint(100, 999)}"
 
     # Llave secreta de integración
     secret_key = settings.BOLD_SECRET_KEY
