@@ -23,6 +23,7 @@ import random
 from django.utils.timezone import now
 from firstapp import settings
 
+
 def is_vendedor(request):
     """
     Verifica si el usuario actual es un vendedor.
@@ -31,6 +32,7 @@ def is_vendedor(request):
     return {
         'is_vendedor': request.user.groups.filter(name='Vendedor').exists()
     }
+
 
 # Create your views here.
 def index(request):
@@ -144,6 +146,7 @@ def eliminar_producto(request, producto_id):
     carrito.eliminar(producto)
     return redirect("cart")
 
+
 def restar_producto(request, producto_id):
     carrito = Carrito(request)
     producto = Product.objects.get(id=producto_id)
@@ -158,7 +161,6 @@ def limpiar_carrito(request):
 
 
 def ayuda(request):
-
     subject_email_map = {
         'Solicitud de cotización': 'ventas-1@papelerialosandes.com',
         'Estado del pedido, facturación o devoluciones': 'bodega@papelerialosandes.com',
@@ -222,7 +224,6 @@ def crear_vendedor(request):
 
 
 def vendedor_dashboard(request):
-
     q = request.GET.get('q')
 
     # Leer (Read): Obtener todos los productos de la base de datos
@@ -246,7 +247,6 @@ def vendedor_dashboard(request):
         product.delete()
         return redirect('vendedor_dashboard')
 
-
     context = {
         'products': products,
         'form': form,
@@ -254,6 +254,7 @@ def vendedor_dashboard(request):
     }
 
     return render(request, 'vendedor_dashboard.html', context)
+
 
 def actualizar_producto(request, product_id):
     # Obtener el producto existente por su ID
@@ -275,11 +276,14 @@ def actualizar_producto(request, product_id):
 def nosotros_view(request):
     return render(request, 'nosotros.html')
 
+
 def operacion_view(request):
     return render(request, 'operation.html')
 
+
 def marcas_view(request):
     return render(request, 'marcas.html')
+
 
 def contactos_view(request):
     return render(request, 'contactos.html')
@@ -332,6 +336,7 @@ def process_payment(request):
 
     return render(request, 'payment.html', context)
 
+
 @login_required(login_url='signin')
 def contact_thanks_p(request):
     order_id = request.session.get('order_id')
@@ -348,6 +353,7 @@ def contact_thanks_p(request):
     }
 
     return render(request, 'thank_you_payment.html', context)
+
 
 @login_required(login_url='signin')
 def payment_successful(request):
@@ -382,12 +388,15 @@ def payment_successful(request):
             seller_message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
 
             send_mail(
-                f'Nuevo pedido  - ID: {order_id}',  # Asunto del correo
-                seller_message,  # Cuerpo del correo
-                settings.EMAIL_HOST_USER,  # Desde
-                [settings.EMAIL_HOST_USER],  # Para (tu propio correo)
+                f'Nuevo pedido  - ID: {order_id}',
+                seller_message,
+                settings.EMAIL_HOST_USER,
+                [settings.EMAIL_HOST_USER],
                 fail_silently=False,
             )
+
+            carrito = Carrito(request)
+            carrito.limpiar()
 
             return render(request, 'payment-success.html')
     else:
