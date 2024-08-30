@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_backends
 from django.db import IntegrityError
 from .carrito import Carrito
 from .forms import ProductForm, CheckoutForm
@@ -48,11 +48,12 @@ def signup(request):
         })
     elif request.method == 'POST':
         username = request.POST.get('username')
+        email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
 
-        # Verificar si el campo de usuario está vacío
-        if not username:
+        # Verificar si el campo de usuario o email están vacío
+        if not username or not email:
             return render(request, 'signup.html', {
                 'form': UserCreationForm,
                 "error": 'El campo de usuario no puede estar vacío'
@@ -75,16 +76,39 @@ def signup(request):
 
         # registrar
         try:
-            user = User.objects.create_user(username=username, password=password1)
-            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            user = User.objects.create_user(username=username, password=password1, email=email)
+            user.is_active = False  # Desactiva la cuenta hasta que se confirme
             user.save()
-            login(request, user)
-            return redirect('index')
+
+            send_confirmation_email(request, user)
+            return redirect('confirm')
         except IntegrityError:
             return render(request, 'signup.html', {
                 'form': UserCreationForm,
                 "error": 'Usuario ya existe'
             })
+
+
+def comfirm_page(request):
+    return render(request, 'confirm.html')
+
+
+def send_confirmation_email(request, user):
+    subject = 'Confirma tu cuenta'
+    message = f'Por favor, confirma tu cuenta haciendo clic en el siguiente enlace: http://{request.get_host()}/confirm-email/{user.id}/'
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [user.email], fail_silently=False)
+
+
+def confirm_email(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    user.is_active = True
+    user.save()
+    backend = get_backends()[0]
+    user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
+
+    login(request, user, backend=user.backend)
+
+    return redirect('index')
 
 
 def signout(request):
