@@ -367,6 +367,7 @@ def payment_successful(request):
         if form_data:
             first_name = form_data['first_name']
             last_name = form_data['last_name']
+            cc = form_data['cc']
             city = form_data['city']
             address = form_data['address']
             email = form_data['email']
@@ -385,7 +386,7 @@ def payment_successful(request):
             # Enviar correo al vendedor
             productos = Carrito(request).listado_productos()
             productos_list = "\n".join([f"{item['name']} \n Cantidad: {item['quantity']}" for item in productos])
-            seller_message = f"Nombres: {first_name}\nApellidos: {last_name}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
+            seller_message = f"Nombres: {first_name}\nApellidos: {last_name}\nDocumento de identidad: {cc}\nCiudad: {city}\nDirección: {address}\nCorreo electrónico: {email}\nTeléfono: {telephone}\n\nProductos:\n{productos_list}"
 
             send_mail(
                 f'Nuevo pedido  - ID: {order_id}',
